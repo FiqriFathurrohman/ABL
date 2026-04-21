@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  # Container Aplikasi Petani
+  pemweb_petani:
+    build:
+      context: .
+      dockerfile: php/Dockerfile 
+    container_name: petani_app # NAMA HARUS BEDA
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - shared_network # Pakai network bersama
+
+  # Container Nginx Petani
+  nginx_petani:
+    image: nginx:stable-alpine
+    container_name: petani_nginx # NAMA HARUS BEDA
+    restart: unless-stopped
+    ports:
+      - "8001:80" # Luar: 8001, Dalam: 80 # Akses Petani via 8001
+    volumes:
+      - ./src:/var/www/html
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - shared_network
+    depends_on:
+      - pemweb_petani
+
+networks:
+  shared_network:
+    external: true
+    name: agri_shared_network # Menghubungkan ke network yang dibuat Admin

@@ -1,10 +1,11 @@
+version: '3.8'
 services:
-  # Container Aplikasi (Laravel)
-  pemweb:
+  # Container Aplikasi Admin
+  pemweb_admin: # Nama service diubah agar unik
     build:
       context: .
       dockerfile: php/Dockerfile 
-    container_name: pemweb_app
+    container_name: admin_app # NAMA HARUS BEDA
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
@@ -14,7 +15,7 @@ services:
     depends_on:
       - mariadb
 
-  # Container Database
+  # Container Database (Hanya di Admin saja)
   mariadb:
     image: mariadb:11.4
     container_name: pemweb_db
@@ -31,21 +32,22 @@ services:
     networks:
       - agri_network
 
-  # Container Web Server (Nginx)
-  nginx_pemweb:
+  # Container Nginx Admin
+  nginx_admin:
     image: nginx:stable-alpine
-    container_name: pemweb_nginx
+    container_name: admin_nginx # NAMA HARUS BEDA
     restart: unless-stopped
     ports:
-      - "80:80"  # Menggunakan Port 80 agar bisa diakses via http://localhost
+      - "80:80" 
     volumes:
       - ./src:/var/www/html
       - ./nginx:/etc/nginx/conf.d
     networks:
       - agri_network
     depends_on:
-      - pemweb
+      - pemweb_admin
 
 networks:
   agri_network:
+    name: agri_shared_network # Berikan nama tetap agar bisa dipanggil web lain
     driver: bridge
