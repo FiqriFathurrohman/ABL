@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  # Container Aplikasi Admin
+  pemweb_admin: # Nama service diubah agar unik
+    build:
+      context: .
+      dockerfile: php/Dockerfile 
+    container_name: admin_app # NAMA HARUS BEDA
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - agri_network
+    depends_on:
+      - mariadb
+
+  # Container Database (Hanya di Admin saja)
+  mariadb:
+    image: mariadb:11.4
+    container_name: pemweb_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: db_agri_service
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_USER: user_agri
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - agri_network
+
+  # Container Nginx Admin
+  nginx_admin:
+    image: nginx:stable-alpine
+    container_name: admin_nginx # NAMA HARUS BEDA
+    restart: unless-stopped
+    ports:
+      - "80:80" 
+    volumes:
+      - ./src:/var/www/html
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - agri_network
+    depends_on:
+      - pemweb_admin
+
+networks:
+  agri_network:
+    name: agri_shared_network # Berikan nama tetap agar bisa dipanggil web lain
+    driver: bridge
