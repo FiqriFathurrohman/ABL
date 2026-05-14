@@ -1,0 +1,54 @@
+services:
+  # Teratani Application (Laravel 12/13)
+  teratani_app:
+    build: 
+      context: ./php
+      dockerfile: Dockerfile
+    image: teratani_platform:8.4
+    container_name: teratani_core
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+      - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf
+    depends_on:
+      - teratani_db
+    networks:
+      - teratani-network
+
+  # Teratani Web Server (Nginx) - Pintu Akses Utama
+  teratani_web:
+    image: nginx:alpine
+    container_name: teratani_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"   # Akses web lewat port 80
+      - "443:443" # Persiapan jika nanti pakai SSL/HTTPS
+    volumes:
+      - ./src:/var/www
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - teratani_app
+    networks:
+      - teratani-network
+
+  # Teratani Database Engine (PostgreSQL)
+  teratani_db:
+    image: postgres:16-alpine
+    container_name: teratani_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-teratani_db}
+      POSTGRES_USER: ${DB_USER:-djambred}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-p455w0rd1!.}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/postgresql_data:/var/lib/postgresql/data
+    networks:
+      - teratani-network
+
+networks:
+  teratani-network:
+    name: teratani_mesh
+    driver: bridge
