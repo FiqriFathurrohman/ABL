@@ -1,38 +1,63 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\PetaniAuthController; // WAJIB ADA
+use App\Http\Controllers\Auth\PetaniAuthController;
+use App\Http\Controllers\SOPController;
+use App\Http\Controllers\Petani\RencanaController;
+use App\Http\Controllers\Petani\PelaksanaanController;
+use App\Http\Controllers\Petani\LahanController;
+use App\Http\Controllers\LaporanController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\Request;
 
-// Redirection awal (opsional)
+/*
+|--------------------------------------------------------------------------
+| Web Routes — Tera Tani Platform
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('index');
 });
 
-// --- Authentication Routes ---
-// Login
-Route::get('/login', [PetaniAuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [PetaniAuthController::class, 'login']);
-Route::post('/logout', [PetaniAuthController::class, 'logout'])->name('logout');
+// Otentikasi
+Route::get('/petani', [PetaniAuthController::class, 'showLoginForm'])->name('login');
+Route::post('/petani', [PetaniAuthController::class, 'login']);
+Route::post('/petani/logout', [PetaniAuthController::class, 'logout'])->name('logout');
 
-// Register
+// Registrasi
 Route::get('/register', [PetaniAuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [PetaniAuthController::class, 'register']);
 
-// --- Email Verification Routes ---
+// Verifikasi email
 Route::get('/email/verify', function () {
-    return view('auth.verify-email'); 
+    return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
-    return redirect()->route('dashboard');
+    return redirect()->route('dashboard.index');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
-// --- Protected Routes (Hanya untuk yang sudah login & verif email) ---
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard.index'); // Sesuaikan dengan view dashboard kamu
-    })->name('dashboard');
+// Semua rute yang memerlukan autentikasi
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [SOPController::class, 'index'])->name('dashboard.index');
+    Route::post('/dashboard', [SOPController::class, 'storeKeuangan'])->name('pelaksanaan.keuangan.store');
+
+    Route::get('/rencana', function () {
+        return redirect('/dashboard');
+    })->name('rencana.index');
+    Route::post('/rencana/mulai', [RencanaController::class, 'storePeriode'])->name('rencana.store');
+    Route::post('/rencana/budget-save', [RencanaController::class, 'storeBudget'])->name('rencana.budget.save');
+
+    Route::get('/pelaksanaan', [PelaksanaanController::class, 'index'])->name('pelaksanaan.index');
+    Route::post('/pelaksanaan/photo', [PelaksanaanController::class, 'storePhoto'])->name('pelaksanaan.photo.store');
+    Route::post('/pelaksanaan/sop-toggle', [PelaksanaanController::class, 'toggleSop'])->name('sop.toggle');
+
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('teratani.laporan');
+    Route::post('/laporan/panen', [LaporanController::class, 'storePanen'])->name('teratani.panen.store');
+    Route::post('/laporan/transaksi', [LaporanController::class, 'storeTransaksi'])->name('teratani.transaksi.store');
+
+    // Manajemen lahan (pendaftaran & cek lahan aktif)
+    Route::post('/petani/lahan/pendaftaran-store', [LahanController::class, 'store'])->name('lahan.store');
+    Route::get('/petani/lahan/aktif', [LahanController::class, 'getActiveLahan'])->name('lahan.aktif');
 });

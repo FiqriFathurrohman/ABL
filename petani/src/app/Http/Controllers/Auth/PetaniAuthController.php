@@ -7,95 +7,72 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rules\Password;
 
 class PetaniAuthController extends Controller
 {
-    /**
-     * Tampilkan Form Registrasi
-     */
     public function showRegistrationForm()
     {
         return view('auth.register');
     }
 
-    /**
-     * Proses Registrasi Petani Baru
-     */
     public function register(Request $request)
     {
+        // Validasi hanya field yang ada di form registrasi (tanpa commodity)
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'phone' => 'required|string',
-            'land_area' => 'required|numeric',
-            'g-recaptcha-response' => 'required|captcha', 
-        ], [
-            'g-recaptcha-response.required' => 'Mohon selesaikan captcha terlebih dahulu.',
-            'g-recaptcha-response.captcha' => 'Captcha tidak valid.',
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|string|email|max:255|unique:users',
+            'alamat_rumah' => 'required|string',
+            'gps_coords'   => 'required|string',
+            'password'     => ['required', 'confirmed', Password::min(6)],
         ]);
 
+        // Buat user (hanya kolom yang pasti ada di tabel users)
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'petani',
-            'status' => 'active', 
-            'phone' => $request->phone,
-            'commodity' => $request->commodity,
-            'land_area' => $request->land_area,
-            'harvest_avg' => $request->harvest_avg,
-            'harvest_count' => $request->harvest_count,
+            'role'     => 'petani',
+            'status'   => 'active',
         ]);
 
-        event(new Registered($user));
-
+        // Login otomatis
         Auth::login($user);
 
-        return redirect()->route('verification.notice');
+        // Simpan alamat dan GPS ke session untuk digunakan di form pendaftaran lahan nanti
+        session([
+            'reg_alamat_rumah' => $request->alamat_rumah,
+            'reg_gps_coords'   => $request->gps_coords,
+        ]);
+
+        return redirect()->to('/dashboard')->with('success', 'Akun berhasil dibuat! Silakan daftarkan lahan Anda.');
     }
 
-    /**
-     * Tampilkan Form Login (Ini yang tadi hilang)
-     */
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    /**
-     * Proses Login
-     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         if (Auth::attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
-
             return redirect()->intended('/dashboard');
         }
 
-        throw ValidationException::withMessages([
-            'email' => 'Email atau kata sandi yang Anda masukkan salah.',
-        ]);
+        return back()->withErrors(['email' => 'Email atau password salah.'])->onlyInput('email');
     }
 
-    /**
-     * Proses Logout
-     */
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        return redirect('/login');
+        return redirect('/petani');
     }
 }

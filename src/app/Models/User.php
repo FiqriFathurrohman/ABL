@@ -2,38 +2,68 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
-    use HasRoles;
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory,HasRoles, Notifiable;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'status',
-        'is_active', 'region', 'latitude', 'longitude'
+        'avatar_url',
+        'name',
+        'email',
+        'password',
     ];
 
     /**
-     * Menentukan siapa yang boleh masuk ke dashboard Filament.
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
      */
-    public function canAccessPanel(Panel $panel): bool
-    {
-        // Cek apakah user punya role 'admin' (via Spatie) 
-        // ATAU kolom is_active bernilai true
-        return $this->hasRole('admin') || (bool) $this->is_active;
-    }
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
-     * HAPUS ATAU KOMENTARI METHOD INI 
-     * Karena sudah disediakan oleh trait HasRoles milik Spatie
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
-    /*
-    public function hasRole(string $role): bool
+    protected function casts(): array
     {
-        return $this->role === $role;
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
-    */
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        if ($this->avatar_url) {
+            return asset('storage/' . $this->avatar_url);
+        } else {
+            $hash = md5(strtolower(trim($this->email)));
+
+            return 'https://www.gravatar.com/avatar/' . $hash . '?d=mp&r=g&s=250';
+        }
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
+    }
 }

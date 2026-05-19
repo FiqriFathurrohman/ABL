@@ -1,38 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
+use Livewire\Livewire;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes - Tera Tani
-|--------------------------------------------------------------------------
+/* NOTE: Do Not Remove
+/ Livewire asset handling if using sub folder in domain
 */
-
-// Halaman Utama / Login User
-Route::get('/', function () {
-    return view('auth.login');
-})->name('login');
-
-/**
- * Akses Registrasi: 
- * Diletakkan di luar middleware 'guest' agar Admin tetap bisa 
- * melihat halaman ini tanpa terkena redirectUsersTo dari bootstrap/app.php.
- */
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-
-// Rute khusus untuk pengunjung yang BELUM login
-Route::middleware('guest')->group(function () {
-    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Livewire::setUpdateRoute(function ($handle) {
+    return Route::post(config('app.asset_prefix') . '/livewire/update', $handle);
 });
 
-// Rute khusus untuk User yang SUDAH login & SUDAH di-approve
-Route::middleware(['auth'])->group(function () {
-    
-    // Dashboard Petani (Bukan Filament)
-    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
-
-    // Proses Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Livewire::setScriptRoute(function ($handle) {
+    return Route::get(config('app.asset_prefix') . '/livewire/livewire.js', $handle);
+});
+/*
+/ END
+*/
+Route::get('/', function () {
+    return view('welcome');
 });

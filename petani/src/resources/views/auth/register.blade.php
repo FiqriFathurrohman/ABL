@@ -3,117 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Akun Petani — Agri Service</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Tera Tani – Daftar Akun Petani</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ asset('assets/css/auth.css') }}">
+    
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .bg-pattern { background-image: url('https://www.transparenttextures.com/patterns/leaf.png'); }
+        .flex-buttons { display: flex; gap: 12px; pt: 8px; }
+        .btn-back { flex: 1; background: #e2e8f0; color: #475569; border: none; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .btn-back:hover { background: #cbd5e1; }
+        .btn-next { flex: 2; }
+        .gps-block { margin-bottom: 16px; }
+        .gps-btn-premium { width: 100%; padding: 12px; margin-bottom: 8px; border: 2px dashed #10b981; border-radius: 12px; background: #f0fdf4; color: #047857; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
+        .gps-btn-premium:hover { background: #dcfce7; }
+        .captcha-container { display: flex; justify-content: center; margin-top: 10px; margin-bottom: 10px; transform: scale(0.9); }
     </style>
     {!! NoCaptcha::renderJs() !!}
 </head>
-<body class="bg-slate-50 bg-pattern">
-    <div class="min-h-screen flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl shadow-slate-200/60 overflow-hidden flex flex-col md:flex-row">
-            
-            <div class="hidden md:flex md:w-1/3 bg-emerald-700 p-12 flex-col justify-between text-white">
-                <div>
-                    <h2 class="text-2xl font-bold leading-tight">Langkah Awal Digitalisasi Lahan.</h2>
-                    <p class="mt-4 text-emerald-100/80 text-sm">Data yang Anda masukkan membantu kami menghitung potensi bagi hasil dan tabungan modal masa depan Anda.</p>
-                </div>
-                
-                <div class="space-y-6">
-                    <div class="flex items-start gap-4">
-                        <div class="bg-emerald-600 p-2 rounded-lg text-xl">📋</div>
-                        <div>
-                            <p class="font-bold text-sm">Data Akurat</p>
-                            <p class="text-xs text-emerald-100/60">Membantu sistem verifikasi otomatis.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                        <div class="bg-emerald-600 p-2 rounded-lg text-xl">📈</div>
-                        <div>
-                            <p class="font-bold text-sm">Estimasi Panen</p>
-                            <p class="text-xs text-emerald-100/60">Prediksi pendapatan tahunan otomatis.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<body>
 
-            <div class="w-full md:w-2/3 p-10 md:p-14">
-                <div class="mb-10">
-                    <h1 class="text-3xl font-extrabold text-slate-800">Daftar Akun</h1>
-                    <p class="text-slate-500 mt-2">Lengkapi profil pertanian Anda untuk mulai bergabung.</p>
-                </div>
-
-                <form action="{{ route('register') }}" method="POST" class="space-y-6">
-                    @csrf
-                    <input type="hidden" name="role" value="petani">
-                    <input type="hidden" name="status" value="active">
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label>
-                            <input type="text" name="name" class="w-full px-5 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" placeholder="Budi Santoso" value="{{ old('name') }}" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Email</label>
-                            <input type="email" name="email" class="w-full px-5 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" placeholder="budi@email.com" value="{{ old('email') }}" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">No. WhatsApp</label>
-                            <input type="tel" name="phone" class="w-full px-5 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" placeholder="0812xxxx" value="{{ old('phone') }}" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Komoditas Utama</label>
-                            <select name="commodity" class="w-full px-5 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all">
-                                <option value="Padi">Padi</option>
-                                <option value="Cabai">Cabai</option>
-                                <option value="Jagung">Jagung</option>
-                                <option value="Bawang">Bawang</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Luas Tanah (m²)</label>
-                            <input type="number" name="land_area" class="w-full px-5 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" placeholder="1000" value="{{ old('land_area') }}" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Kata Sandi</label>
-                            <input type="password" name="password" class="w-full px-5 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Konfirmasi</label>
-                            <input type="password" name="password_confirmation" class="w-full px-5 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all" required>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col items-center py-2">
-                        {!! NoCaptcha::display() !!}
-                        @error('g-recaptcha-response')
-                            <span class="text-red-500 text-xs mt-2 font-semibold italic">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="pt-4">
-                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 rounded-[2rem] shadow-xl shadow-emerald-100 transition-all transform active:scale-[0.98]">
-                            Daftarkan Lahan Sekarang
-                        </button>
-                    </div>
-                </form>
-
-                <div class="mt-10 text-center">
-                    <p class="text-slate-500 text-sm">
-                        Sudah punya akun? <a href="{{ route('login') }}" class="text-emerald-600 font-bold hover:underline">Masuk di sini</a>
-                    </p>
-                </div>
-            </div>
-        </div>
+<div id="auth-overlay">
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-brand-icon">🌿</div>
+      <div class="auth-brand-name">TERA TANI</div>
     </div>
+    <p class="auth-tagline" id="step-left-title">Langkah Awal Digitalisasi Lahan.</p>
+    <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin-top: -10px; margin-bottom: 25px; line-height: 1.5;" id="step-left-desc">Data yang Anda masukkan membantu kami menghitung potensi bagi hasil dan koordinat satelit cuaca secara instan.</p>
+    
+    <div class="auth-features">
+      <div class="auth-feature">
+        <div class="auth-feature-icon">📋</div>
+        <div class="auth-feature-text">Jadwal SOP Otomatis</div>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">⛅</div>
+        <div class="auth-feature-text">Pantau Cuaca Real-time</div>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">📊</div>
+        <div class="auth-feature-text">Laporan Laba/Rugi Instan</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="auth-card-title">Daftar Akun Petani</div>
+      <div class="auth-card-sub" id="step-sub-title">Lengkapi identitas personal Anda.</div>
+      
+      <div class="step-bar" style="margin-bottom: 25px;">
+        <div class="step-seg done" id="bar-seg1" style="height: 6px; border-radius: 3px; background: #10b981;"></div>
+        <div class="step-seg" id="bar-seg2" style="height: 6px; border-radius: 3px; background: #e2e8f0;"></div>
+        <div class="step-seg" id="bar-seg3" style="height: 6px; border-radius: 3px; background: #e2e8f0;"></div>
+      </div>
+      <div style="display: none; text-transform:uppercase; font-size:10px; letter-spacing:1px; font-weight:800; color:#10b981;" id="step-badge-counter">Langkah 1 dari 3</div>
+
+      @if ($errors->any())
+          <div style="background: #fef2f2; border: 1px solid #fee2e2; color: #991b1b; padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 12px; font-weight: 600;">
+              <ul style="list-style-type: disc; padding-left: 15px;">
+                  @foreach ($errors->all() as $error)
+                      <li>{{ $error }}</li>
+                  @endforeach
+              </ul>
+          </div>
+      @endif
+
+      <form action="{{ route('register') }}" method="POST" onsubmit="return handleRegisterSubmit(event)" novalidate>
+        @csrf
+        <input type="hidden" name="role" value="petani">
+        <input type="hidden" name="status" value="active">
+
+        <!-- STEP 1: Nama, Email, Alamat Rumah -->
+        <div id="step-card-1" class="space-y-4">
+          <div class="auth-input-wrap">
+            <label>Nama Lengkap</label>
+            <span class="field-icon">👤</span>
+            <input type="text" name="name" id="reg-nama" placeholder="Masukkan nama lengkap" value="{{ old('name') }}" required>
+          </div>
+
+          <div class="auth-input-wrap">
+            <label>Alamat Email</label>
+            <span class="field-icon">✉️</span>
+            <input type="email" name="email" id="reg-email" placeholder="budi@email.com" value="{{ old('email') }}" required>
+          </div>
+
+          <div class="auth-input-wrap">
+            <label>Alamat Domisili Rumah</label>
+            <textarea id="reg-alamat" name="alamat_rumah" placeholder="Masukkan alamat rumah lengkap Anda" style="padding-left: 14px; min-height: 70px; font-family: inherit; padding-top: 12px;" required>{{ old('alamat_rumah') }}</textarea>
+          </div>
+
+          <button type="button" class="auth-btn" onclick="pindahStep(2)">Lanjutkan →</button>
+        </div>
+
+        <!-- STEP 2: Koordinat GPS Satelit -->
+        <div id="step-card-2" style="display: none;">
+          <div class="gps-block">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">Koordinat GPS Satelit</label>
+            <button type="button" onclick="autoDetectHardwareGPS()" class="gps-btn-premium">
+              📍 Hubungkan & Deteksi GPS Perangkat Riil
+            </button>
+            <div class="auth-input-wrap">
+              <span class="field-icon">📡</span>
+              <input type="text" name="gps_coords" id="reg-gps" placeholder="-6.9175, 107.1143" value="{{ old('gps_coords') }}" style="background: #f8fafc; font-family: monospace;" required>
+            </div>
+          </div>
+
+          <div class="flex-buttons">
+            <button type="button" onclick="pindahStep(1)" class="btn-back">← Kembali</button>
+            <button type="button" onclick="pindahStep(3)" class="auth-btn btn-next">Lanjut ke Kata Sandi →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: PIN / Kata Sandi + Konfirmasi -->
+        <div id="step-card-3" style="display: none;">
+          <div class="auth-input-wrap">
+            <label>PIN / Kata Sandi</label>
+            <span class="field-icon">🔒</span>
+            <input type="password" name="password" id="reg-pass-utama" placeholder="••••••••" required>
+          </div>
+
+          <div class="auth-input-wrap">
+            <label>Konfirmasi Kata Sandi</label>
+            <span class="field-icon">🔑</span>
+            <input type="password" name="password_confirmation" id="reg-pass-konfirmasi" placeholder="••••••••" required>
+          </div>
+
+          <!-- Captcha (disembunyikan dulu) -->
+          <div class="captcha-container" style="display: none;">
+              {!! NoCaptcha::display() !!}
+          </div>
+
+          <div class="flex-buttons">
+            <button type="button" onclick="pindahStep(2)" class="btn-back">← Kembali</button>
+            <button type="submit" class="auth-btn btn-next">Selesai & Daftar 🌾</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="auth-switch" id="footer-switch-login" style="margin-top: 25px;">
+        Sudah punya akun? <a href="{{ route('login') }}">Masuk di sini</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Fungsi perpindahan step dengan validasi ringan
+    function pindahStep(step) {
+        if (step === 2) {
+            const nama = document.getElementById('reg-nama').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const alamat = document.getElementById('reg-alamat').value.trim();
+            if (!nama || !email || !alamat) {
+                alert('Harap isi Nama Lengkap, Email, dan Alamat Rumah terlebih dahulu!');
+                return;
+            }
+            document.getElementById('step-badge-counter').style.display = 'block';
+            document.getElementById('step-badge-counter').textContent = "Langkah 2 dari 3";
+            document.getElementById('step-sub-title').textContent = "Aktifkan GPS untuk mendapatkan koordinat lokasi rumah Anda.";
+            document.getElementById('bar-seg1').style.background = "#10b981";
+            document.getElementById('bar-seg2').style.background = "#10b981";
+            document.getElementById('bar-seg3').style.background = "#e2e8f0";
+        } 
+        else if (step === 3) {
+            const gps = document.getElementById('reg-gps').value.trim();
+            if (!gps) {
+                alert('Harap deteksi atau isi koordinat GPS terlebih dahulu!');
+                return;
+            }
+            document.getElementById('step-badge-counter').textContent = "Langkah 3 dari 3";
+            document.getElementById('step-sub-title').textContent = "Buat PIN keamanan untuk mengakses akun Anda.";
+            document.getElementById('bar-seg1').style.background = "#10b981";
+            document.getElementById('bar-seg2').style.background = "#10b981";
+            document.getElementById('bar-seg3').style.background = "#10b981";
+        } 
+        else if (step === 1) {
+            document.getElementById('step-badge-counter').textContent = "Langkah 1 dari 3";
+            document.getElementById('step-sub-title').textContent = "Lengkapi identitas personal Anda.";
+            document.getElementById('bar-seg1').style.background = "#10b981";
+            document.getElementById('bar-seg2').style.background = "#e2e8f0";
+            document.getElementById('bar-seg3').style.background = "#e2e8f0";
+        }
+
+        // Tampilkan step yang dipilih
+        for (let i = 1; i <= 3; i++) {
+            document.getElementById('step-card-' + i).style.display = (i === step) ? 'block' : 'none';
+        }
+    }
+
+    // Deteksi GPS otomatis (sama seperti sebelumnya)
+    function autoDetectHardwareGPS() {
+        const gpsBox = document.getElementById('reg-gps');
+        if (navigator.geolocation) {
+            gpsBox.value = "Menghubungkan satelit perangkat...";
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude.toFixed(4);
+                    const lon = position.coords.longitude.toFixed(4);
+                    gpsBox.value = `${lat}, ${lon}`;
+                    alert(`Sensor GPS Riil Aktif!\nTitik Koordinat: ${lat}, ${lon}`);
+                },
+                () => {
+                    gpsBox.value = "-6.9175, 107.1143"; 
+                    alert("Izin lokasi diblokir perangkat. Menggunakan titik koordinat default.");
+                },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        } else {
+            gpsBox.value = "-6.9175, 107.1143";
+            alert("Browser tidak mendukung penjelajahan GPS.");
+        }
+    }
+
+    // Validasi akhir sebelum submit
+    function handleRegisterSubmit(event) {
+        const password = document.getElementById('reg-pass-utama').value;
+        const passwordConf = document.getElementById('reg-pass-konfirmasi').value;
+        const gps = document.getElementById('reg-gps').value.trim();
+        const nama = document.getElementById('reg-nama').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const alamat = document.getElementById('reg-alamat').value.trim();
+
+        if (!nama || !email || !alamat) {
+            alert('Data identitas belum lengkap.');
+            event.preventDefault();
+            return false;
+        }
+        if (!gps) {
+            alert('Koordinat GPS harus diisi.');
+            event.preventDefault();
+            return false;
+        }
+        if (password !== passwordConf) {
+            alert('Konfirmasi kata sandi tidak cocok!');
+            event.preventDefault();
+            return false;
+        }
+        if (password.length < 6) {
+            alert('Kata sandi minimal 6 karakter.');
+            event.preventDefault();
+            return false;
+        }
+
+        // Opsional: simpan ke localStorage sebagai backup (tidak wajib)
+        try {
+            const userPayload = {
+                nama: nama,
+                email: email,
+                alamat: alamat,
+                gps: gps,
+                registeredAt: new Date().toISOString()
+            };
+            localStorage.setItem('teratani_registrasi_backup', JSON.stringify(userPayload));
+        } catch(e) {}
+
+        return true; // lanjut submit ke server
+    }
+
+    // Inisialisasi: pastikan GPS input bisa diubah jika user ingin manual (tidak readonly agar bisa diedit)
+    document.addEventListener("DOMContentLoaded", function() {
+        // Buat field GPS bisa diedit manual (opsional), namun tetap diperlukan
+        const gpsInput = document.getElementById('reg-gps');
+        if (gpsInput) {
+            gpsInput.readOnly = false;  // biarkan user edit manual jika GPS gagal
+            gpsInput.style.background = "#fff";
+        }
+    });
+</script>
 </body>
 </html>
